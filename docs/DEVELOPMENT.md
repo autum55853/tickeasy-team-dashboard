@@ -105,3 +105,4 @@ npx shadcn@latest add <component-name>
 - **Token 讀取位置**：`getAuthToken()` 讀 Cookie，只能在瀏覽器端呼叫（`typeof window !== 'undefined'` 或 Client Component）
 - **前端 URL 硬編碼**：`https://frontend-amber.onrender.com/login` 出現在 `lib/auth-utils.ts`（clearAuthData）、`middleware.ts`、`app/auth/login/page.tsx`，環境切換需全部更新
 - **revalidatePath**：API Route 呼叫成功後若需更新快取，加上 `revalidatePath("/dashboard/xxx")`
+- **`SUPABASE_SERVICE_ROLE_KEY` 填入 anon key**：`concert`、`users`、`order` 等 table 均啟用 RLS 且無 policy，anon key（PostgREST `role: anon`）查詢會靜默回傳 0 筆，無 error。必須填入 service_role key（Supabase Dashboard → Project Settings → API → service_role secret）才能繞過 RLS。症狀：`rawConcerts count: 0 error: null`。注意：service_role key 不可加 `NEXT_PUBLIC_` 前綴（禁止暴露至瀏覽器）

@@ -1,32 +1,26 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { ConcertStats } from "@/components/concerts/concert-stats";
 import { ConcertTable } from "@/components/concerts/concert-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ConcertsPage() {
-  const supabase = await createClient();
-  
-  // 獲取演唱會數據，包含關聯的 organization 和 venue
-  const { data: concerts, error } = await supabase
-    .from("concert")
-    .select(`
-      *,
-      organization:organizationId (
-        organizationId,
-        orgName,
-        userId
-      ),
-      venue:venueId (
-        venueId,
-        venueName,
-        venueAddress
-      )
-    `)
-    .order("createdAt", { ascending: false });
+  const supabase = createAdminClient();
 
+  // 獲取演唱會數據，包含關聯的 organization 和 venue
+  const [{ data: rawConcerts, error }, { data: organizations }, { data: venues }] = await Promise.all([
+    supabase.from("concert").select("*").order("createdAt", { ascending: false }),
+    supabase.from("organization").select("organizationId, orgName, userId"),
+    supabase.from("venues").select("venueId, venueName, venueAddress"),
+  ]);
   if (error) {
     console.error("Error fetching concerts:", error);
   }
+
+  const concerts = rawConcerts?.map((concert) => ({
+    ...concert,
+    organization: organizations?.find((o) => o.organizationId === concert.organizationId),
+    venue: venues?.find((v) => v.venueId === concert.venueId),
+  }));
 
   // 計算統計數據
   const stats = {
@@ -42,27 +36,27 @@ export default async function ConcertsPage() {
 
   concerts?.forEach((concert) => {
     switch (concert.conInfoStatus) {
-      case 'draft':
+      case "draft":
         stats.draft++;
         break;
-      case 'reviewing':
+      case "reviewing":
         stats.reviewing++;
-        if (concert.reviewStatus === 'pending') {
+        if (concert.reviewStatus === "pending") {
           stats.pending_review++;
         }
         break;
-      case 'published':
+      case "published":
         stats.published++;
         break;
-      case 'rejected':
+      case "rejected":
         stats.rejected++;
         break;
-      case 'finished':
+      case "finished":
         stats.finished++;
         break;
     }
-    
-    if (concert.reviewStatus === 'skipped') {
+
+    if (concert.reviewStatus === "skipped") {
       stats.review_skipped++;
     }
   });
@@ -81,9 +75,7 @@ export default async function ConcertsPage() {
       <Card>
         <CardHeader>
           <CardTitle>演唱會列表</CardTitle>
-          <CardDescription>
-            查看和審核所有演唱會
-          </CardDescription>
+          <CardDescription>查看和審核所有演唱會</CardDescription>
         </CardHeader>
         <CardContent>
           <ConcertTable concerts={concerts || []} />
@@ -91,4 +83,4 @@ export default async function ConcertsPage() {
       </Card>
     </div>
   );
-} 
+}
