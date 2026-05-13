@@ -2,64 +2,80 @@
 
 ## 目前狀態
 
-專案**尚無測試框架**。現有 `npm run lint`（ESLint）為唯一自動化品質檢查。
+已建立完整測試框架：**Vitest**（單元 / 整合）+ **Playwright**（E2E）。
 
-## 建議引入的測試框架
+## 測試框架
 
-| 測試類型 | 建議框架 | 說明 |
-|----------|----------|------|
-| 單元測試 / 整合測試 | Vitest + @testing-library/react | Next.js 相容性佳，速度快 |
-| E2E 測試 | Playwright | 模擬真實認證流程 |
+| 層次 | 框架 | 設定檔 |
+|------|------|--------|
+| 單元 / 整合 | Vitest + @testing-library/react | `vitest.config.ts` |
+| E2E | Playwright | `playwright.config.ts` |
 
-## 若引入 Vitest 的設定步驟
+## 指令
 
 ```bash
-npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom jsdom
+npm run test              # 所有單元測試（跑一次）
+npm run test:watch        # 監看模式（開發中用）
+npm run test:coverage     # 產生覆蓋率報告（≥ 80% 門檻）
+npm run test:e2e          # E2E 測試（需先啟動 dev server）
 ```
 
-```typescript
-// vitest.config.ts
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+## 目錄結構
 
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
-    globals: true,
-  },
-  resolve: {
-    alias: { '@': resolve(__dirname, '.') },
-  },
-});
+```
+tests/
+├── setup.ts                              # @testing-library/jest-dom 初始化
+├── unit/
+│   ├── auth-utils.test.ts                # lib/auth-utils.ts（P1）
+│   ├── middleware.test.ts                # middleware.ts（P2）
+│   ├── api/
+│   │   ├── concerts-review.test.ts       # /dashboard/concerts/review（P1）
+│   │   └── users-update-role.test.ts     # /dashboard/users/update-role（P1）
+│   └── components/
+│       ├── role-switcher.test.tsx        # components/users/role-switcher（P2）
+│       ├── concert-review-panel.test.tsx # components/concerts/concert-review-panel（P2）
+│       └── concert-review-actions.test.tsx  # components/concerts/concert-review-actions（P3）
+└── e2e/
+    ├── auth.spec.ts                      # 認證流程
+    └── dashboard.spec.ts                 # 各頁面主要路徑
 ```
 
-## 優先測試項目
+## 優先順序
 
-按重要性排序：
+| 優先 | 測試標的 | 原因 |
+|------|----------|------|
+| P1 | `lib/auth-utils.ts` | 影響所有頁面認證，邏輯複雜 |
+| P1 | API Routes（review / update-role） | 唯一的寫入路徑，需驗證 401/400/500 |
+| P2 | `middleware.ts` | 保護 /dashboard 入口，邊界條件重要 |
+| P2 | `RoleSwitcher`、`ConcertReviewPanel` | 核心互動 UI |
+| P3 | `ConcertReviewActions` | Dialog 確認流程 |
 
-1. **`lib/auth-utils.ts`**：`handleCrossDomainAuth()`、`getAuthToken()`、`clearAuthData()`
-   - 邏輯複雜，影響所有頁面的認證
-   - 需 mock `document.cookie` 和 `window.localStorage`
+## 覆蓋率目標
 
-2. **API Routes**（`/dashboard/concerts/review`、`/dashboard/users/update-role`）
-   - 驗證缺少 Authorization header 時回 401
-   - 驗證轉發 body 正確
+核心模組（auth-utils、API routes）維持 **≥ 80%** 行覆蓋率。
+`components/ui/`（shadcn/ui 元件）排除在覆蓋率計算外。
 
-3. **`components/users/role-switcher.tsx`**：角色更新成功 / 失敗的 UI 行為
+## 測試認證注意事項
 
-4. **`components/concerts/concert-review-panel.tsx`**：reviewStatus 為 pending 才顯示操作區塊
+- `getAuthToken()` 依賴 `document.cookie`，測試時用 `document.cookie = '...'` 設定
+- `handleCrossDomainAuth()` 呼叫 `window.history.replaceState()`，jsdom 已支援
+- API Routes 測試：用 `vi.stubGlobal('fetch', vi.fn())` mock 後端 fetch
+- E2E：用 `page.context().addCookies()` 注入 `tickeasy_token` 繞過 middleware
 
-## 測試認證的注意事項
+## Mock 策略速查
 
-- `getAuthToken()` 依賴 `document.cookie`，測試時需手動設定
-- `handleCrossDomainAuth()` 呼叫 `window.history.replaceState()`，需確保 jsdom 支援
-- E2E 測試需模擬跨域 token 傳入流程，無法直接走正常登入介面
+| 場景 | Mock 方法 |
+|------|-----------|
+| 後端 fetch（單元） | `vi.stubGlobal('fetch', vi.fn().mockResolvedValue(...))` |
+| `getAuthToken()` | `vi.mock('@/lib/auth-utils', () => ({ getAuthToken: vi.fn(() => 'fake-token') }))` |
+| `sonner` toast | `vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))` |
+| Radix Dialog（元件） | `vi.mock('@/components/ui/dialog', ...)` 換成簡單 HTML wrapper |
+| next/cache | `vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))` |
+| E2E 認證 | `page.context().addCookies([{ name: 'tickeasy_token', ... }])` |
 
 ## 常見陷阱
 
-- Server Components 無法用 React Testing Library 直接測試（需 mock 或抽出邏輯）
-- Supabase client 在測試環境需 mock（`@supabase/supabase-js` 的 `createBrowserClient`）
-- API Routes 測試需 mock `fetch`（轉發至後端的呼叫）
+- **Supabase client**：Server Component 在 jsdom 無法直接測試，需 mock 或抽出邏輯
+- **Radix UI Select**：jsdom 中難以觸發開啟事件，改測 fetch 呼叫側效果
+- **next/server（NextRequest / NextResponse）**：可直接在 Vitest 中 import，不需額外 mock
+- **E2E token**：測試用的假 token 無法通過後端驗證，Supabase 查詢可能失敗；E2E 應針對 UI 渲染而非資料準確性
