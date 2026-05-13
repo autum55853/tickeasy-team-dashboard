@@ -33,7 +33,7 @@ npm run lint   # ESLint 檢查
 ## 必要遵守項目
 
 - 新增 `/dashboard` 子路由前，確認 `middleware.ts` 的 matcher 不需要調整
-- 前端登入 URL（`https://frontend-fz4o.onrender.com/login`）目前硬編碼在多處，環境切換需全部更新（未來應改 `NEXT_PUBLIC_FRONTEND_URL` 環境變數）
+- 前端登入 URL（`https://frontend-amber.onrender.com/login`）目前硬編碼在多處，環境切換需全部更新（未來應改 `NEXT_PUBLIC_FRONTEND_URL` 環境變數）
 - `actions/` 目錄下的 Server Actions 目前已被 API Routes 取代，不可直接使用
 - 用戶角色修改只允許 `superuser` 操作；API Route 本身不驗證權限（驗證在後端），前端 UI 應控制顯示
 - `lib/supabase/middleware.ts` 內的 Supabase Auth session 更新邏輯已全數註解，勿還原

@@ -101,7 +101,7 @@ Client Component（layout.tsx）啟動後：
 ### 正常進入流程
 
 ```
-前端（frontend-fz4o.onrender.com）
+前端（frontend-amber.onrender.com）
   └─ 管理員點「後台管理」
        └─ redirect → /dashboard?token=<jwt>&userInfo=<encoded-json>
             └─ middleware.ts 讀 URL token → 寫 Cookie → redirect /dashboard（乾淨 URL）
@@ -139,7 +139,7 @@ fetch(`${apiBase}/api/v1/users/${userId}/role`, {
 `clearAuthData()`（`lib/auth-utils.ts`）：
 1. 清除 `localStorage.tickeasy_token` + `tickeasy_user`
 2. 清除 Cookie `tickeasy_token`（max-age=0）
-3. `window.location.href = 'https://frontend-fz4o.onrender.com/login'`
+3. `window.location.href = 'https://frontend-amber.onrender.com/login'`
 
 ## API Routes（Proxy 模式）
 
@@ -247,7 +247,7 @@ supabase.from('concert').select(`
 | 服務 | URL | 說明 |
 |------|-----|------|
 | 後端 API | https://tickeasy-team-backend.onrender.com | 業務邏輯 API，JWT 驗證 |
-| 前端應用 | https://frontend-fz4o.onrender.com | 用戶端，提供登入入口 |
+| 前端應用 | https://frontend-amber.onrender.com | 用戶端，提供登入入口 |
 | Supabase | NEXT_PUBLIC_SUPABASE_URL | 資料庫直連讀取 |
 | Supabase Storage | cppeqosxwdgemmgbutnd.supabase.co | 演唱會圖片儲存 |
 | Google User Content | lh3.googleusercontent.com | Google OAuth 頭像 |

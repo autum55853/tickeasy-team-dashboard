@@ -103,5 +103,5 @@ npx shadcn@latest add <component-name>
 
 - **Supabase client 誤用**：Server Component 內不可用 `lib/supabase/client.ts`（瀏覽器版），必須用 `lib/supabase/server.ts`
 - **Token 讀取位置**：`getAuthToken()` 讀 Cookie，只能在瀏覽器端呼叫（`typeof window !== 'undefined'` 或 Client Component）
-- **前端 URL 硬編碼**：`https://frontend-fz4o.onrender.com/login` 出現在 `lib/auth-utils.ts`（clearAuthData）、`middleware.ts`、`app/auth/login/page.tsx`，環境切換需全部更新
+- **前端 URL 硬編碼**：`https://frontend-amber.onrender.com/login` 出現在 `lib/auth-utils.ts`（clearAuthData）、`middleware.ts`、`app/auth/login/page.tsx`，環境切換需全部更新
 - **revalidatePath**：API Route 呼叫成功後若需更新快取，加上 `revalidatePath("/dashboard/xxx")`

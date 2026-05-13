@@ -24,7 +24,7 @@
 ## 🔒 認證流程
 
 ### 正常流程（跨域認證）
-1. 用戶在前端 (`https://frontend-fz4o.onrender.com`) 登入
+1. 用戶在前端 (`https://frontend-amber.onrender.com`) 登入
 2. 管理員點擊「後台管理」
 3. 前端將 token 和用戶資訊作為 URL 參數傳遞給後台
 4. 後台接收參數並設置到 localStorage
@@ -53,7 +53,7 @@
 1. **修改 Dashboard Layout** (`app/(dashboard)/layout.tsx`)
    ```typescript
    // 將這行
-   window.location.href = "https://frontend-fz4o.onrender.com/login";
+   window.location.href = "https://frontend-amber.onrender.com/login";
    // 改回
    router.replace("/auth/login");
    ```

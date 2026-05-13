@@ -129,7 +129,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NEXT_PUBLIC_API_URL=https://tickeasy-team-backend.onrender.com
 
 # 前端網址（用於跨域認證）
-NEXT_PUBLIC_FRONTEND_URL=https://frontend-fz4o.onrender.com
+NEXT_PUBLIC_FRONTEND_URL=https://frontend-amber.onrender.com
 ```
 
 #### 4. 啟動開發伺服器

@@ -28,7 +28,7 @@
 
 | 情境 | 結果 |
 |------|------|
-| Cookie 不存在 + 無 URL token | 302 → `https://frontend-fz4o.onrender.com/login?next=<原始URL>` |
+| Cookie 不存在 + 無 URL token | 302 → `https://frontend-amber.onrender.com/login?next=<原始URL>` |
 | 直接訪問 `/auth/login` | 2 秒後導向前端登入 |
 | JWT 過期（後端驗證失敗） | API 回 401，前端顯示錯誤 toast |
 

@@ -42,7 +42,7 @@ npm run dev
 
 ## 進入後台
 
-後台本身無獨立登入介面。需從前端（`https://frontend-fz4o.onrender.com`）以管理員身份登入後，點擊「後台管理」按鈕跳轉。跳轉時前端帶上 `?token=<jwt>&userInfo=<encoded>` 參數，後台自動接收並設定 Cookie。
+後台本身無獨立登入介面。需從前端（`https://frontend-amber.onrender.com`）以管理員身份登入後，點擊「後台管理」按鈕跳轉。跳轉時前端帶上 `?token=<jwt>&userInfo=<encoded>` 參數，後台自動接收並設定 Cookie。
 
 ## 文件索引
 
@@ -60,6 +60,6 @@ npm run dev
 
 | 系統 | URL |
 |------|-----|
-| 前端應用 | https://frontend-fz4o.onrender.com |
+| 前端應用 | https://frontend-amber.onrender.com |
 | 後端 API | https://tickeasy-team-backend.onrender.com |
 | Supabase 控制台 | https://supabase.com/dashboard |

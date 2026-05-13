@@ -118,7 +118,7 @@ export default function Navbar() {
     }
     
     // 重定向到前端登入頁面
-    window.location.href = "https://frontend-fz4o.onrender.com/login";
+    window.location.href = "https://frontend-amber.onrender.com/login";
   };
 
   return (
