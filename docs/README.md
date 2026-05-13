@@ -61,5 +61,5 @@ npm run dev
 | 系統 | URL |
 |------|-----|
 | 前端應用 | https://frontend-amber.onrender.com |
-| 後端 API | https://tickeasy-team-backend.onrender.com |
+| 後端 API | https://tickeasy-amber-backend.onrender.com |
 | Supabase 控制台 | https://supabase.com/dashboard |

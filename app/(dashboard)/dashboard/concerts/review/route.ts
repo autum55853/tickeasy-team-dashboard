@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "缺少授權資訊" }, { status: 401 });
     }
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-team-backend.onrender.com";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
     const apiRes = await fetch(
       `${apiBase}/api/v1/concerts/${concertId}/manual-review`,
       {

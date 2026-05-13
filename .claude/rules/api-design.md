@@ -39,7 +39,7 @@ NextResponse.json({ success: false, error: "錯誤訊息" }, { status: 4xx | 5xx
 ## 使用後端 API Base URL
 
 ```typescript
-const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-team-backend.onrender.com";
+const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
 ```
 
 不可硬編碼後端 URL，務必用環境變數。

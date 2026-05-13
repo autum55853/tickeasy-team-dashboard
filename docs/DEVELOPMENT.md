@@ -30,7 +30,7 @@ import { getAuthToken } from "@/lib/auth-utils";
 |------|------|------|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 專案 URL | 是 | 無 |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | 是 | 無 |
-| `NEXT_PUBLIC_API_URL` | 後端 API base URL | 是 | `https://tickeasy-team-backend.onrender.com` |
+| `NEXT_PUBLIC_API_URL` | 後端 API base URL | 是 | `https://tickeasy-amber-backend.onrender.com` |
 | `VERCEL_URL` | Vercel 部署 URL（自動注入） | 否 | `http://localhost:3000` |
 
 **注意**：`NEXT_PUBLIC_` 前綴的變數會暴露給瀏覽器端。目前 API URL 和 Supabase 設定均為公開 key，符合設計。JWT secret 不在前端。
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-team-backend.onrender.com";
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
 
   const apiRes = await fetch(`${apiBase}/api/v1/...`, {
     method: "POST",

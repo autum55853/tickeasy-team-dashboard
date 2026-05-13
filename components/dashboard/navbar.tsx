@@ -49,7 +49,7 @@ export default function Navbar() {
         return;
       }
 
-      const response = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/users/profile", {
+      const response = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/users/profile", {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,

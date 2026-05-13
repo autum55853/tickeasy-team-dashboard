@@ -246,7 +246,7 @@ supabase.from('concert').select(`
 
 | 服務 | URL | 說明 |
 |------|-----|------|
-| 後端 API | https://tickeasy-team-backend.onrender.com | 業務邏輯 API，JWT 驗證 |
+| 後端 API | https://tickeasy-amber-backend.onrender.com | 業務邏輯 API，JWT 驗證 |
 | 前端應用 | https://frontend-amber.onrender.com | 用戶端，提供登入入口 |
 | Supabase | NEXT_PUBLIC_SUPABASE_URL | 資料庫直連讀取 |
 | Supabase Storage | cppeqosxwdgemmgbutnd.supabase.co | 演唱會圖片儲存 |
