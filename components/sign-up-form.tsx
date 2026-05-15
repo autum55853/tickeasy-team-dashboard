@@ -35,7 +35,7 @@ export function SignUpForm({
       return;
     }
     try {
-      const res = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/auth/register", {
+      const res = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name: email.split("@")[0] }),
@@ -43,7 +43,7 @@ export function SignUpForm({
       const data = await res.json();
       if (data.status === "success") {
         // 註冊成功自動登入
-        const loginRes = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/auth/login", {
+        const loginRes = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),

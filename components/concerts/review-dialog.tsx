@@ -59,7 +59,7 @@ export function ReviewDialog({
     }
     setIsReviewLoading(true);
     const token = typeof window !== "undefined" ? getAuthToken() : null;
-    fetch(`https://tickeasy-team-backend.onrender.com/api/v1/concerts/${concert.concertId}/reviews`, {
+    fetch(`https://tickeasy-amber-backend.onrender.com/api/v1/concerts/${concert.concertId}/reviews`, {
       headers: {
         ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         "Content-Type": "application/json"
@@ -106,7 +106,7 @@ export function ReviewDialog({
     try {
       // 從 localStorage 取得 token，並加到 Authorization header
       const token = typeof window !== "undefined" ? getAuthToken() : null;
-      const res = await fetch(`https://tickeasy-team-backend.onrender.com/api/v1/concerts/${concert.concertId}/manual-review`, {
+      const res = await fetch(`https://tickeasy-amber-backend.onrender.com/api/v1/concerts/${concert.concertId}/manual-review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -139,7 +139,7 @@ const ConcertReviewHistory: React.FC<ConcertReviewHistoryProps> = ({ concertId }
         console.log("  - 前20字元:", token?.substring(0, 20) + "...");
       }
 
-      const apiUrl = `https://tickeasy-team-backend.onrender.com/api/v1/concerts/${concertId}/reviews`;
+      const apiUrl = `https://tickeasy-amber-backend.onrender.com/api/v1/concerts/${concertId}/reviews`;
       if (SHOW_DEBUG) console.log("📡 完整 API URL:", apiUrl);
 
       const headers = {

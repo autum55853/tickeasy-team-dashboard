@@ -19,7 +19,7 @@ export function useAuth() {
 
   // 登入
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/auth/login", {
+    const res = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -42,7 +42,7 @@ export function useAuth() {
 
   // 註冊
   const register = useCallback(async (email: string, password: string, name: string) => {
-    const res = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/auth/register", {
+    const res = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, name }),

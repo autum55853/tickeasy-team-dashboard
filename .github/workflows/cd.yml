@@ -1,0 +1,84 @@
+name: CD
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render deploy
+        id: render
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          echo "status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+          if [ "$HTTP_STATUS" != "201" ] && [ "$HTTP_STATUS" != "200" ]; then
+            echo "Render deploy hook returned $HTTP_STATUS"
+            exit 1
+          fi
+
+      - name: Wait for deployment
+        run: sleep 120
+
+      - name: Notify Discord (success)
+        if: success()
+        run: |
+          curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "✅ 部署成功",
+                "description": "**Tickeasy Dashboard** 已成功部署到 Render",
+                "color": 3066993,
+                "fields": [
+                  {
+                    "name": "PR",
+                    "value": "[#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
+                    "inline": false
+                  },
+                  {
+                    "name": "合併者",
+                    "value": "${{ github.event.pull_request.merged_by.login }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "分支",
+                    "value": "`${{ github.event.pull_request.head.ref }}` → `main`",
+                    "inline": true
+                  }
+                ],
+                "timestamp": "${{ github.event.pull_request.merged_at }}"
+              }]
+            }'
+
+      - name: Notify Discord (failure)
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "❌ 部署失敗",
+                "description": "**Tickeasy Dashboard** 部署到 Render 失敗，請檢查 GitHub Actions 日誌",
+                "color": 15158332,
+                "fields": [
+                  {
+                    "name": "PR",
+                    "value": "[#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
+                    "inline": false
+                  },
+                  {
+                    "name": "Actions 日誌",
+                    "value": "[查看詳情](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                    "inline": false
+                  }
+                ],
+                "timestamp": "${{ github.event.pull_request.merged_at }}"
+              }]
+            }'

@@ -8,7 +8,7 @@ export default function Page() {
   useEffect(() => {
     // 留一點時間讓用戶看到重定向訊息，然後自動跳轉
     const timer = setTimeout(() => {
-      window.location.href = "https://frontend-fz4o.onrender.com/login";
+      window.location.href = "https://frontend-amber.onrender.com/login";
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -28,7 +28,7 @@ export default function Page() {
           <p className="text-sm text-blue-500 mt-2">
             如果沒有自動跳轉，請點擊 
             <a 
-              href="https://frontend-fz4o.onrender.com/login" 
+              href="https://frontend-amber.onrender.com/login" 
               className="underline font-medium"
             >
               這裡

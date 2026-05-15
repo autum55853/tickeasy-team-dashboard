@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+export const dynamic = "force-dynamic";
+
+import { createAdminClient } from "@/lib/supabase/server";
 import { OrderTable } from "@/components/orders/order-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatsCard } from "@/components/dashboard/stats-card";
@@ -11,7 +13,7 @@ import {
 } from "lucide-react";
 
 export default async function OrdersPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   
   // 獲取訂單數據，包含關聯的用戶和票券資訊
   const { data: orders, error } = await supabase

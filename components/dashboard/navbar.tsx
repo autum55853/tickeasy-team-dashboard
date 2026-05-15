@@ -49,7 +49,7 @@ export default function Navbar() {
         return;
       }
 
-      const response = await fetch("https://tickeasy-team-backend.onrender.com/api/v1/users/profile", {
+      const response = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/users/profile", {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -118,7 +118,7 @@ export default function Navbar() {
     }
     
     // 重定向到前端登入頁面
-    window.location.href = "https://frontend-fz4o.onrender.com/login";
+    window.location.href = "https://frontend-amber.onrender.com/login";
   };
 
   return (
