@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createAdminClient } from "@/lib/supabase/server";
 import { OrderTable } from "@/components/orders/order-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

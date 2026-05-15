@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createAdminClient } from "@/lib/supabase/server";
 import { ConcertStats } from "@/components/concerts/concert-stats";
 import { ConcertTable } from "@/components/concerts/concert-table";

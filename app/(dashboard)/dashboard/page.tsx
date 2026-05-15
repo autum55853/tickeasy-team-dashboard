@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createAdminClient } from "@/lib/supabase/server";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { Users, Music, ShoppingCart, Clock } from "lucide-react";
