@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import * as Avatar from "@radix-ui/react-avatar";
 import { getAuthToken } from "@/lib/auth-utils";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+
 // 導覽列項目
 const navItems = [
   { href: "/dashboard/users", label: "用戶管理" },
@@ -49,7 +52,7 @@ export default function Navbar() {
         return;
       }
 
-      const response = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/users/profile", {
+      const response = await fetch(`${API_BASE}/api/v1/users/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -118,7 +121,7 @@ export default function Navbar() {
     }
     
     // 重定向到前端登入頁面
-    window.location.href = "https://frontend-amber.onrender.com/login";
+    window.location.href = `${FRONTEND_URL}/login`;
   };
 
   return (

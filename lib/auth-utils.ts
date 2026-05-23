@@ -74,7 +74,7 @@ export const clearAuthData = (): void => {
   }
   
   // 導向前端登入頁面
-  window.location.href = 'https://frontend-amber.onrender.com/login';
+  window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`;
 };
 
 /**

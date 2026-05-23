@@ -15,7 +15,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       NEXT_PUBLIC_API_URL: https://tickeasy-amber-backend.onrender.com
-
+      NEXT_PUBLIC_FRONTEND_URL: https://frontend-amber.onrender.com
     steps:
       - uses: actions/checkout@v4
 

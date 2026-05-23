@@ -3,6 +3,7 @@ import { getAuthToken } from "@/lib/auth-utils";
 
 const TOKEN_KEY = "tickeasy_token";
 const USER_KEY = "tickeasy_user";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 // 擴充 user 型別，支援 avatar 欄位
 export function useAuth() {
@@ -19,7 +20,7 @@ export function useAuth() {
 
   // 登入
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/login", {
+    const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -42,7 +43,7 @@ export function useAuth() {
 
   // 註冊
   const register = useCallback(async (email: string, password: string, name: string) => {
-    const res = await fetch("https://tickeasy-amber-backend.onrender.com/api/v1/auth/register", {
+    const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, name }),
