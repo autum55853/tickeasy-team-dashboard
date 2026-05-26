@@ -121,7 +121,7 @@ export function VenueFormDialog({ venue, open, onClose, onSave, onCreated }: Ven
 
       if (isCreate) {
         toast.success("場地新增成功");
-        onCreated?.(result.data);
+        onCreated?.(result.data.data);
         handleClose();
       } else {
         toast.success("場地更新成功");
