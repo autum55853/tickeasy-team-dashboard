@@ -4,13 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { getAuthToken } from "@/lib/auth-utils";
 import type { Venue } from "@/lib/types/concert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +47,7 @@ export function VenueEditDialog({ venue, open, onClose, onSave }: VenueEditDialo
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           venueId: venue.venueId,
@@ -104,102 +98,51 @@ export function VenueEditDialog({ venue, open, onClose, onSave }: VenueEditDialo
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="venueName">場地名稱 *</Label>
-            <Input
-              id="venueName"
-              value={form.venueName}
-              onChange={(e) => setForm((f) => ({ ...f, venueName: e.target.value }))}
-              required
-            />
+            <Input id="venueName" value={form.venueName} onChange={(e) => setForm((f) => ({ ...f, venueName: e.target.value }))} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="venueAddress">地址 *</Label>
-            <Input
-              id="venueAddress"
-              value={form.venueAddress}
-              onChange={(e) => setForm((f) => ({ ...f, venueAddress: e.target.value }))}
-              required
-            />
+            <Input id="venueAddress" value={form.venueAddress} onChange={(e) => setForm((f) => ({ ...f, venueAddress: e.target.value }))} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="venueDescription">場地描述</Label>
-            <Textarea
-              id="venueDescription"
-              value={form.venueDescription}
-              onChange={(e) => setForm((f) => ({ ...f, venueDescription: e.target.value }))}
-              rows={3}
-            />
+            <Textarea id="venueDescription" value={form.venueDescription} onChange={(e) => setForm((f) => ({ ...f, venueDescription: e.target.value }))} rows={3} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="venueCapacity">容納人數</Label>
-            <Input
-              id="venueCapacity"
-              type="number"
-              min={0}
-              value={form.venueCapacity}
-              onChange={(e) => setForm((f) => ({ ...f, venueCapacity: e.target.value }))}
-            />
+            <Input id="venueCapacity" type="number" min={0} value={form.venueCapacity} onChange={(e) => setForm((f) => ({ ...f, venueCapacity: e.target.value }))} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="venueImageUrl">場地圖片 URL</Label>
-            <Input
-              id="venueImageUrl"
-              type="url"
-              value={form.venueImageUrl}
-              onChange={(e) => setForm((f) => ({ ...f, venueImageUrl: e.target.value }))}
-              placeholder="https://..."
-            />
+            <Input id="venueImageUrl" type="url" value={form.venueImageUrl} onChange={(e) => setForm((f) => ({ ...f, venueImageUrl: e.target.value }))} placeholder="https://..." />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="googleMapUrl">Google Maps 連結</Label>
-            <Input
-              id="googleMapUrl"
-              type="url"
-              value={form.googleMapUrl}
-              onChange={(e) => setForm((f) => ({ ...f, googleMapUrl: e.target.value }))}
-              placeholder="https://maps.google.com/..."
-            />
+            <Input id="googleMapUrl" type="url" value={form.googleMapUrl} onChange={(e) => setForm((f) => ({ ...f, googleMapUrl: e.target.value }))} placeholder="https://maps.google.com/..." />
           </div>
 
           <div className="space-y-3">
             <Label>設施</Label>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <Checkbox
-                  id="isAccessible"
-                  checked={form.isAccessible}
-                  onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, isAccessible: !!checked }))
-                  }
-                />
+                <Checkbox id="isAccessible" checked={form.isAccessible} onCheckedChange={(checked) => setForm((f) => ({ ...f, isAccessible: !!checked }))} />
                 <Label htmlFor="isAccessible" className="font-normal cursor-pointer">
                   無障礙設施
                 </Label>
               </div>
               <div className="flex items-center gap-2">
-                <Checkbox
-                  id="hasParking"
-                  checked={form.hasParking}
-                  onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, hasParking: !!checked }))
-                  }
-                />
+                <Checkbox id="hasParking" checked={form.hasParking} onCheckedChange={(checked) => setForm((f) => ({ ...f, hasParking: !!checked }))} />
                 <Label htmlFor="hasParking" className="font-normal cursor-pointer">
                   停車場
                 </Label>
               </div>
               <div className="flex items-center gap-2">
-                <Checkbox
-                  id="hasTransit"
-                  checked={form.hasTransit}
-                  onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, hasTransit: !!checked }))
-                  }
-                />
+                <Checkbox id="hasTransit" checked={form.hasTransit} onCheckedChange={(checked) => setForm((f) => ({ ...f, hasTransit: !!checked }))} />
                 <Label htmlFor="hasTransit" className="font-normal cursor-pointer">
                   大眾交通
                 </Label>
