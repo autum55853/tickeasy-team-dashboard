@@ -5,10 +5,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as Avatar from "@radix-ui/react-avatar";
-import { getAuthToken } from "@/lib/auth-utils";
+import { getAuthToken, clearAuthData } from "@/lib/auth-utils";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
 // 導覽列項目
 const navItems = [
@@ -112,17 +111,7 @@ export default function Navbar() {
 
   // 登出功能
   const handleLogout = () => {
-    // 清除 user 資訊 (token 僅在 cookie 中，不用刪 localStorage token)
-    localStorage.removeItem("tickeasy_user");
-    // 清除同域 cookie，避免 Middleware 誤判
-    try {
-      document.cookie = "tickeasy_token=; path=/; max-age=0";
-    } catch (err) {
-      console.warn("無法刪除 cookie", err);
-    }
-    
-    // 重定向到前端登入頁面
-    window.location.href = `${FRONTEND_URL}/login`;
+    clearAuthData();
   };
 
   return (
