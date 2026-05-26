@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-26
+
+### Added
+- 場地管理功能（`/dashboard/venues`）：列表瀏覽、搜尋篩選、編輯 Dialog
+- `components/venues/venue-table.tsx`：場地列表（含名稱/地址搜尋）
+- `components/venues/venue-edit-dialog.tsx`：場地編輯 Dialog（9 個欄位）
+- API Route proxy：`POST /dashboard/venues/update` → `PATCH /api/v1/venues/{venueId}`
+
+### Changed
+- Navbar 加入「場地管理」導覽項目
+
 ## [0.3.0] - 2026-05-12
 
 ### Changed
