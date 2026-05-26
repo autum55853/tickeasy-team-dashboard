@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    env: {
+      NEXT_PUBLIC_FRONTEND_URL: 'https://frontend-amber.onrender.com',
+    },
     globals: true,
     exclude: ['node_modules', '.next', 'tests/e2e/**'],
     coverage: {

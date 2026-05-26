@@ -107,7 +107,7 @@ describe('clearAuthData', () => {
     return {
       style: {} as CSSStyleDeclaration,
       src: '',
-      onload: null as (() => void) | null,
+      contentWindow: {} as Window,
       onerror: null as (() => void) | null,
       setAttribute: vi.fn(),
       parentNode: { removeChild: vi.fn() },
@@ -132,7 +132,8 @@ describe('clearAuthData', () => {
     expect(fakeIframe.setAttribute).toHaveBeenCalledWith('sandbox', 'allow-scripts allow-same-origin');
   });
 
-  it('iframe onload → 清除 localStorage / Cookie + 跳轉登入頁', () => {
+  it('iframe 傳送 LOGOUT_BROADCAST_DONE message → 清除 localStorage / Cookie + 跳轉登入頁', () => {
+    vi.useFakeTimers();
     document.cookie = 'tickeasy_token=jwt-abc; path=/';
     localStorage.setItem('tickeasy_user', '{"userId":"u1"}');
     localStorage.setItem('tickeasy_token', 'jwt-abc');
@@ -142,12 +143,19 @@ describe('clearAuthData', () => {
     vi.spyOn(document.body, 'appendChild').mockImplementation(() => fakeIframe as unknown as Node);
 
     clearAuthData();
-    fakeIframe.onload!();
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { type: 'LOGOUT_BROADCAST_DONE' },
+        source: fakeIframe.contentWindow as Window,
+      })
+    );
 
     expect(document.cookie).not.toContain('tickeasy_token=jwt-abc');
     expect(localStorage.getItem('tickeasy_user')).toBeNull();
     expect(localStorage.getItem('tickeasy_token')).toBeNull();
     expect(window.location.href).toBe('https://frontend-amber.onrender.com/login');
+    vi.useRealTimers();
   });
 
   it('iframe onerror → 仍執行本地清除與跳轉', () => {

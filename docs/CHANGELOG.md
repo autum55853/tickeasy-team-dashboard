@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-05-26
+
+### Fixed
+- `lib/auth-utils.ts`：修正跨域登出 timing bug — `iframe.onload` 在前台 React SPA boot 前觸發，導致 BroadcastChannel 訊息尚未發出就清除 iframe；改以 `postMessage` handshake 取代，前台廣播完成後才通知 Dashboard 執行清除與跳轉，4 秒 timeout 保留作 fallback
+
 ## [0.4.1] - 2026-05-26
 
 ### Added

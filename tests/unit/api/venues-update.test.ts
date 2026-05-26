@@ -81,7 +81,7 @@ describe('PATCH /dashboard/venues/[venueId]', () => {
     await PATCH(req, venueParams('v1'));
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/venues/v1'),
+      expect.stringContaining('/api/v1/concerts/venues/v1'),
       expect.objectContaining({
         method: 'PATCH',
         headers: expect.objectContaining({
@@ -126,6 +126,22 @@ describe('DELETE /dashboard/venues/[venueId]', () => {
     expect(res.status).toBe(500);
     const json = await res.json();
     expect(json.success).toBe(false);
+  });
+
+  it('正確轉發 Authorization header 與 DELETE 至後端', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const req = makeRequest('DELETE', null, 'Bearer test-token');
+    await DELETE(req, venueParams('v1'));
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/concerts/venues/v1'),
+      expect.objectContaining({
+        method: 'DELETE',
+        headers: expect.objectContaining({ 'Authorization': 'Bearer test-token' }),
+      })
+    );
   });
 });
 
@@ -184,5 +200,22 @@ describe('POST /dashboard/venues/create', () => {
     const json = await res.json();
     expect(json.success).toBe(true);
     expect(json.data).toEqual(mockVenue);
+  });
+
+  it('正確轉發 Authorization header 與 POST 至後端', async () => {
+    const mockVenue = { venueId: 'new-id', ...fullVenueBody };
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => mockVenue });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const req = makeRequest('POST', fullVenueBody, 'Bearer test-token');
+    await POST(req);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/concerts/venues'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ 'Authorization': 'Bearer test-token' }),
+      })
+    );
   });
 });
