@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-26
+
+### Added
+- 場地管理：新增場地功能（`VenueCreateDialog` + `POST /dashboard/venues`）
+- 場地管理：刪除場地功能（AlertDialog 確認 + `DELETE /dashboard/venues/[venueId]`）
+- `components/ui/alert-dialog.tsx`：AlertDialog 元件（@radix-ui/react-alert-dialog）
+- `components/venues/venue-create-dialog.tsx`：場地新增 Dialog
+
+### Changed
+- `venue-table.tsx`：加入「新增場地」按鈕、刪除按鈕、刪除確認 AlertDialog
+- API Route 由 `POST /dashboard/venues/update` 改為 `PATCH /dashboard/venues/[venueId]`（RESTful）
+- 測試更新至新 API Route 路徑，補充 DELETE 和 POST 測試案例
+
 ## [0.4.0] - 2026-05-26
 
 ### Added

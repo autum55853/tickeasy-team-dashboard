@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { VenueEditDialog } from '@/components/venues/venue-edit-dialog';
+import { VenueFormDialog } from '@/components/venues/venue-form-dialog';
 import type { Venue } from '@/lib/types/concert';
 
 vi.mock('sonner', () => ({
@@ -52,6 +52,10 @@ const makeVenue = (overrides: Partial<Venue> = {}): Venue => ({
   venueId: 'v1',
   venueName: '台北小巨蛋',
   venueAddress: '台北市松山區南京東路四段一號',
+  venueDescription: '多功能室內體育館',
+  venueCapacity: 15000,
+  venueImageUrl: 'https://example.com/arena.jpg',
+  googleMapUrl: 'https://maps.google.com/?q=taipei+arena',
   isAccessible: false,
   hasParking: false,
   hasTransit: false,
@@ -64,57 +68,46 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('VenueEditDialog', () => {
+describe('VenueFormDialog（edit mode）', () => {
   it('open=false → 不渲染內容', () => {
     render(
-      <VenueEditDialog venue={makeVenue()} open={false} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={false} onClose={vi.fn()} onSave={vi.fn()} />
     );
     expect(screen.queryByTestId('dialog')).not.toBeInTheDocument();
   });
 
   it('open=true → 渲染表單並預填場地資料', () => {
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
     );
     expect(screen.getByDisplayValue('台北小巨蛋')).toBeInTheDocument();
     expect(screen.getByDisplayValue('台北市松山區南京東路四段一號')).toBeInTheDocument();
   });
 
-  it('venueName 空白 → toast.error，不送出 fetch', async () => {
-    const { toast } = await import('sonner');
-    vi.stubGlobal('fetch', vi.fn());
-
+  it('所有欄位有值 → 儲存按鈕啟用', () => {
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
     );
-
-    fireEvent.change(screen.getByDisplayValue('台北小巨蛋'), { target: { value: '   ' } });
-    fireEvent.click(screen.getByRole('button', { name: '儲存' }));
-
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('場地名稱和地址為必填');
-    });
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: '儲存' })).not.toBeDisabled();
   });
 
-  it('venueAddress 空白 → toast.error，不送出 fetch', async () => {
-    const { toast } = await import('sonner');
-    vi.stubGlobal('fetch', vi.fn());
-
+  it('清空 venueName → 儲存按鈕 disabled', () => {
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
     );
-
-    fireEvent.change(screen.getByDisplayValue('台北市松山區南京東路四段一號'), { target: { value: '   ' } });
-    fireEvent.click(screen.getByRole('button', { name: '儲存' }));
-
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('場地名稱和地址為必填');
-    });
-    expect(global.fetch).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByDisplayValue('台北小巨蛋'), { target: { value: '' } });
+    expect(screen.getByRole('button', { name: '儲存' })).toBeDisabled();
   });
 
-  it('送出表單 → fetch 帶正確 URL、method、Authorization header 和 venueId', async () => {
+  it('清空 venueDescription → 儲存按鈕 disabled', () => {
+    render(
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+    );
+    fireEvent.change(screen.getByDisplayValue('多功能室內體育館'), { target: { value: '' } });
+    expect(screen.getByRole('button', { name: '儲存' })).toBeDisabled();
+  });
+
+  it('送出表單 → fetch 帶正確 URL（PATCH /dashboard/venues/v1）和 Authorization header', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
@@ -122,16 +115,16 @@ describe('VenueEditDialog', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: '儲存' }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        '/dashboard/venues/update',
+        '/dashboard/venues/v1',
         expect.objectContaining({
-          method: 'POST',
+          method: 'PATCH',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
             'Authorization': 'Bearer fake-token',
@@ -141,8 +134,8 @@ describe('VenueEditDialog', () => {
     });
 
     const callBody = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(callBody.venueId).toBe('v1');
     expect(callBody.venueName).toBe('台北小巨蛋');
+    expect(callBody).not.toHaveProperty('venueId');
   });
 
   it('API 成功 → toast.success + onSave + onClose 被呼叫', async () => {
@@ -155,7 +148,7 @@ describe('VenueEditDialog', () => {
     const onSave = vi.fn();
     const onClose = vi.fn();
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={onClose} onSave={onSave} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={onClose} onSave={onSave} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: '儲存' }));
@@ -176,7 +169,7 @@ describe('VenueEditDialog', () => {
 
     const onSave = vi.fn();
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={onSave} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={onSave} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: '儲存' }));
@@ -192,7 +185,7 @@ describe('VenueEditDialog', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
 
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={vi.fn()} onSave={vi.fn()} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: '儲存' }));
@@ -205,7 +198,7 @@ describe('VenueEditDialog', () => {
   it('取消按鈕 → onClose 被呼叫', () => {
     const onClose = vi.fn();
     render(
-      <VenueEditDialog venue={makeVenue()} open={true} onClose={onClose} onSave={vi.fn()} />
+      <VenueFormDialog venue={makeVenue()} open={true} onClose={onClose} onSave={vi.fn()} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: '取消' }));
@@ -214,7 +207,7 @@ describe('VenueEditDialog', () => {
 
   it('isAccessible checkbox 可切換狀態', () => {
     render(
-      <VenueEditDialog
+      <VenueFormDialog
         venue={makeVenue({ isAccessible: false })}
         open={true}
         onClose={vi.fn()}

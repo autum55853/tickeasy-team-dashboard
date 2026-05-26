@@ -3,25 +3,31 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { VenueTable } from '@/components/venues/venue-table';
 import type { Venue } from '@/lib/types/concert';
 
-vi.mock('@/components/venues/venue-edit-dialog', () => ({
-  VenueEditDialog: ({ venue, open, onClose, onSave }: {
-    venue: Venue;
+vi.mock('@/components/venues/venue-form-dialog', () => ({
+  VenueFormDialog: ({ venue, open, onClose, onSave }: {
+    venue?: Venue;
     open: boolean;
     onClose: () => void;
-    onSave: (v: Venue) => void;
-  }) =>
-    open ? (
-      <div data-testid="edit-dialog">
-        <span data-testid="editing-venue">{venue.venueName}</span>
-        <button onClick={onClose} data-testid="dialog-close">關閉</button>
-        <button
-          onClick={() => onSave({ ...venue, venueName: '已更新場地' })}
-          data-testid="dialog-save"
-        >
-          儲存
-        </button>
-      </div>
-    ) : null,
+    onSave?: (v: Venue) => void;
+    onCreated?: (v: Venue) => void;
+  }) => {
+    if (!open) return null;
+    if (venue) {
+      return (
+        <div data-testid="edit-dialog">
+          <span data-testid="editing-venue">{venue.venueName}</span>
+          <button onClick={onClose} data-testid="dialog-close">關閉</button>
+          <button
+            onClick={() => onSave?.({ ...venue, venueName: '已更新場地' })}
+            data-testid="dialog-save"
+          >
+            儲存
+          </button>
+        </div>
+      );
+    }
+    return <div data-testid="create-dialog" />;
+  },
 }));
 
 const makeVenue = (overrides: Partial<Venue> = {}): Venue => ({
@@ -117,7 +123,10 @@ describe('VenueTable', () => {
   it('點擊編輯按鈕 → 開啟 Dialog 並顯示對應場地', () => {
     render(<VenueTable venues={[makeVenue()]} />);
 
-    fireEvent.click(screen.getByRole('button'));
+    const editButtons = screen.getAllByRole('button').filter(
+      (btn) => btn.querySelector('svg') !== null
+    );
+    fireEvent.click(editButtons[1]);
 
     expect(screen.getByTestId('edit-dialog')).toBeInTheDocument();
     expect(screen.getByTestId('editing-venue')).toHaveTextContent('台北小巨蛋');
@@ -126,7 +135,10 @@ describe('VenueTable', () => {
   it('Dialog 儲存後 → 表格更新場地名稱', () => {
     render(<VenueTable venues={[makeVenue()]} />);
 
-    fireEvent.click(screen.getByRole('button'));
+    const editButtons = screen.getAllByRole('button').filter(
+      (btn) => btn.querySelector('svg') !== null
+    );
+    fireEvent.click(editButtons[1]);
     fireEvent.click(screen.getByTestId('dialog-save'));
 
     expect(screen.getByText('已更新場地')).toBeInTheDocument();
@@ -135,7 +147,10 @@ describe('VenueTable', () => {
   it('Dialog 關閉後 → Dialog 不再顯示', () => {
     render(<VenueTable venues={[makeVenue()]} />);
 
-    fireEvent.click(screen.getByRole('button'));
+    const editButtons = screen.getAllByRole('button').filter(
+      (btn) => btn.querySelector('svg') !== null
+    );
+    fireEvent.click(editButtons[1]);
     expect(screen.getByTestId('edit-dialog')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('dialog-close'));
