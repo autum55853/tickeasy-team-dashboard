@@ -86,19 +86,23 @@ export const clearAuthData = (): void => {
   iframe.style.display = 'none';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
 
-  const timer = setTimeout(() => {
-    performLocalCleanup(iframe);
-  }, BROADCAST_TIMEOUT_MS);
-
-  iframe.onload = () => {
+  const cleanup = (): void => {
     clearTimeout(timer);
+    window.removeEventListener('message', onMessage);
     performLocalCleanup(iframe);
   };
 
-  iframe.onerror = () => {
-    clearTimeout(timer);
-    performLocalCleanup(iframe);
+  const timer = setTimeout(cleanup, BROADCAST_TIMEOUT_MS);
+
+  const onMessage = (event: MessageEvent): void => {
+    if (event.data?.type === 'LOGOUT_BROADCAST_DONE' && event.source === iframe.contentWindow) {
+      cleanup();
+    }
   };
+
+  window.addEventListener('message', onMessage);
+
+  iframe.onerror = cleanup;
 
   iframe.src = `${FRONTEND_URL}/auth/logout-broadcast`;
   document.body.appendChild(iframe);
