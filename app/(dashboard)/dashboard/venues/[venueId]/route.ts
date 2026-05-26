@@ -15,7 +15,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { venueId: 
     }
 
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
-    const apiRes = await fetch(`${apiBase}/api/v1/venues/${venueId}`, {
+    const apiRes = await fetch(`${apiBase}/api/v1/concerts/venues/${venueId}`, {
       method: "DELETE",
       headers: { "Authorization": authHeader },
     });
@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { venueId: s
 
     const body = await req.json();
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
-    const apiRes = await fetch(`${apiBase}/api/v1/venues/${venueId}`, {
+    const apiRes = await fetch(`${apiBase}/api/v1/concerts/venues/${venueId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

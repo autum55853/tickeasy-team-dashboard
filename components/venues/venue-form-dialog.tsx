@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getAuthToken } from "@/lib/auth-utils";
 import type { Venue } from "@/lib/types/concert";
@@ -73,8 +73,11 @@ export function VenueFormDialog({ venue, open, onClose, onSave, onCreated }: Ven
   const [form, setForm] = useState<FormState>(() => toFormState(venue));
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (open) setForm(toFormState(venue));
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleClose = () => {
-    if (isCreate) setForm(toFormState());
     onClose();
   };
 

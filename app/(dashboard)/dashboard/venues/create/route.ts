@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://tickeasy-amber-backend.onrender.com";
-    const apiRes = await fetch(`${apiBase}/api/v1/venues`, {
+    const apiRes = await fetch(`${apiBase}/api/v1/concerts/venues`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
