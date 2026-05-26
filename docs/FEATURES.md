@@ -8,6 +8,7 @@
 | 用戶管理 | `/dashboard/users` | 完成 |
 | 演唱會管理（列表） | `/dashboard/concerts` | 完成 |
 | 演唱會管理（詳情 + 審核） | `/dashboard/concerts/[id]` | 完成 |
+| 場地管理 | `/dashboard/venues` | 完成 |
 | 訂單管理 | `/dashboard/orders` | 完成 |
 | 跨域認證 | middleware + layout | 完成 |
 
@@ -129,6 +130,58 @@ Authorization: Bearer <token>
 
 ---
 
+## 場地管理
+
+### 行為描述
+
+- Server Component 從 Supabase 查詢所有場地，按 `venueName` 升序排列
+- Client Component `VenueTable` 支援依 venueName / venueAddress 搜尋篩選
+- 每列有「編輯」按鈕，點擊開啟 `VenueEditDialog`，預填現有資料
+- 編輯成功後 optimistic update 本地 state（不重新 fetch）
+
+### 場地更新流程
+
+1. 管理員點擊「編輯」→ 開啟 Dialog，預填場地現有資訊
+2. 修改欄位後送出 → `POST /dashboard/venues/update`（帶 Authorization header）
+3. API Route 轉發 → `PATCH ${NEXT_PUBLIC_API_URL}/api/v1/venues/{venueId}`
+4. 成功 → sonner toast「場地更新成功」+ 更新表格該列資料 + 關閉 Dialog
+5. 失敗 → sonner toast 顯示錯誤訊息
+
+### 可編輯欄位
+
+| 欄位 | 類型 | 必填 |
+|------|------|------|
+| `venueName` | 文字 | 是 |
+| `venueAddress` | 文字 | 是 |
+| `venueDescription` | 多行文字 | 否 |
+| `venueCapacity` | 數字 | 否 |
+| `venueImageUrl` | URL | 否 |
+| `googleMapUrl` | URL | 否 |
+| `isAccessible` | 勾選框 | 否 |
+| `hasParking` | 勾選框 | 否 |
+| `hasTransit` | 勾選框 | 否 |
+
+### 請求格式
+
+```json
+POST /dashboard/venues/update
+Authorization: Bearer <token>
+{
+  "venueId": "uuid",
+  "venueName": "場地名稱",
+  "venueAddress": "地址",
+  "venueDescription": "描述（選填）",
+  "venueCapacity": 1000,
+  "venueImageUrl": "https://...",
+  "googleMapUrl": "https://maps.google.com/...",
+  "isAccessible": true,
+  "hasParking": false,
+  "hasTransit": true
+}
+```
+
+---
+
 ## 訂單管理
 
 ### 行為描述
@@ -159,4 +212,4 @@ Authorization: Bearer <token>
 - API 失敗時 fallback 到 `localStorage.tickeasy_user`
 - 顯示：用戶頭像（Radix Avatar）、用戶名稱（name 或 nickname）、角色 badge（superuser 才顯示）
 - 登出按鈕 → `clearAuthData()`（清除 Cookie + localStorage，導向前端登入）
-- 導覽項目：用戶管理 / 演唱會管理 / 訂單管理（active 狀態根據 pathname）
+- 導覽項目：用戶管理 / 演唱會管理 / 場地管理 / 訂單管理（active 狀態根據 pathname）

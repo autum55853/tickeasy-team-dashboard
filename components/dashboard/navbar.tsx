@@ -14,6 +14,7 @@ const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 const navItems = [
   { href: "/dashboard/users", label: "用戶管理" },
   { href: "/dashboard/concerts", label: "演唱會管理" },
+  { href: "/dashboard/venues", label: "場地管理" },
   { href: "/dashboard/orders", label: "訂單管理" },
 ];
 
