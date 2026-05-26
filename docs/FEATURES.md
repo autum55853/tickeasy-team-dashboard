@@ -136,16 +136,32 @@ Authorization: Bearer <token>
 
 - Server Component 從 Supabase 查詢所有場地，按 `venueName` 升序排列
 - Client Component `VenueTable` 支援依 venueName / venueAddress 搜尋篩選
-- 每列有「編輯」按鈕，點擊開啟 `VenueEditDialog`，預填現有資料
-- 編輯成功後 optimistic update 本地 state（不重新 fetch）
+- 頂部「新增場地」按鈕開啟 `VenueCreateDialog`
+- 每列有「編輯」和「刪除」按鈕
+  - 「編輯」開啟 `VenueEditDialog`，預填現有資料
+  - 「刪除」開啟 AlertDialog 確認，確認後呼叫 DELETE API
+- 所有操作成功後 optimistic update 本地 state（不重新 fetch）
+
+### 場地新增流程
+
+1. 管理員點擊「新增場地」→ 開啟空白 Dialog
+2. 填寫必填欄位（名稱、地址）後送出 → `POST /dashboard/venues`（帶 Authorization header）
+3. API Route 轉發 → `POST ${NEXT_PUBLIC_API_URL}/api/v1/venues`
+4. 成功 → sonner toast「場地新增成功」+ 插入表格並按名稱排序 + 關閉 Dialog
 
 ### 場地更新流程
 
 1. 管理員點擊「編輯」→ 開啟 Dialog，預填場地現有資訊
-2. 修改欄位後送出 → `POST /dashboard/venues/update`（帶 Authorization header）
+2. 修改欄位後送出 → `PATCH /dashboard/venues/{venueId}`（帶 Authorization header）
 3. API Route 轉發 → `PATCH ${NEXT_PUBLIC_API_URL}/api/v1/venues/{venueId}`
 4. 成功 → sonner toast「場地更新成功」+ 更新表格該列資料 + 關閉 Dialog
-5. 失敗 → sonner toast 顯示錯誤訊息
+
+### 場地刪除流程
+
+1. 管理員點擊「刪除」→ 開啟 AlertDialog 確認（警告無法復原）
+2. 確認後 → `DELETE /dashboard/venues/{venueId}`（帶 Authorization header）
+3. API Route 轉發 → `DELETE ${NEXT_PUBLIC_API_URL}/api/v1/venues/{venueId}`
+4. 成功 → sonner toast「場地刪除成功」+ 從表格移除該列
 
 ### 可編輯欄位
 
@@ -164,20 +180,16 @@ Authorization: Bearer <token>
 ### 請求格式
 
 ```json
-POST /dashboard/venues/update
+POST /dashboard/venues
 Authorization: Bearer <token>
-{
-  "venueId": "uuid",
-  "venueName": "場地名稱",
-  "venueAddress": "地址",
-  "venueDescription": "描述（選填）",
-  "venueCapacity": 1000,
-  "venueImageUrl": "https://...",
-  "googleMapUrl": "https://maps.google.com/...",
-  "isAccessible": true,
-  "hasParking": false,
-  "hasTransit": true
-}
+{ "venueName": "場地名稱", "venueAddress": "地址", ...其他欄位 }
+
+PATCH /dashboard/venues/{venueId}
+Authorization: Bearer <token>
+{ "venueName": "場地名稱", "venueAddress": "地址", ...其他欄位 }
+
+DELETE /dashboard/venues/{venueId}
+Authorization: Bearer <token>
 ```
 
 ---
