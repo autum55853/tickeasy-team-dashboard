@@ -103,17 +103,6 @@ describe('getCurrentUser', () => {
 // ─── clearAuthData ───────────────────────────────────────────────────────────
 
 describe('clearAuthData', () => {
-  function makeFakeIframe() {
-    return {
-      style: {} as CSSStyleDeclaration,
-      src: '',
-      contentWindow: {} as Window,
-      onerror: null as (() => void) | null,
-      setAttribute: vi.fn(),
-      parentNode: { removeChild: vi.fn() },
-    };
-  }
-
   beforeEach(() => {
     Object.defineProperty(window, 'location', {
       value: { href: '' },
@@ -121,76 +110,25 @@ describe('clearAuthData', () => {
     });
   });
 
-  it('建立隱藏 iframe，src 指向前台 logout-broadcast', () => {
-    const fakeIframe = makeFakeIframe();
-    vi.spyOn(document, 'createElement').mockReturnValue(fakeIframe as unknown as HTMLElement);
-    vi.spyOn(document.body, 'appendChild').mockImplementation(() => fakeIframe as unknown as Node);
-
-    clearAuthData();
-
-    expect(fakeIframe.src).toBe('https://frontend-amber.onrender.com/auth/logout-broadcast');
-    expect(fakeIframe.setAttribute).toHaveBeenCalledWith('sandbox', 'allow-scripts allow-same-origin');
-  });
-
-  it('iframe 傳送 LOGOUT_BROADCAST_DONE message → 清除 localStorage / Cookie + 跳轉登入頁', () => {
-    vi.useFakeTimers();
+  it('立即清除 localStorage / Cookie 並導向前台 logout-broadcast', () => {
     document.cookie = 'tickeasy_token=jwt-abc; path=/';
     localStorage.setItem('tickeasy_user', '{"userId":"u1"}');
     localStorage.setItem('tickeasy_token', 'jwt-abc');
 
-    const fakeIframe = makeFakeIframe();
-    vi.spyOn(document, 'createElement').mockReturnValue(fakeIframe as unknown as HTMLElement);
-    vi.spyOn(document.body, 'appendChild').mockImplementation(() => fakeIframe as unknown as Node);
-
     clearAuthData();
 
-    window.dispatchEvent(
-      new MessageEvent('message', {
-        data: { type: 'LOGOUT_BROADCAST_DONE' },
-        source: fakeIframe.contentWindow as Window,
-      })
-    );
-
-    expect(document.cookie).not.toContain('tickeasy_token=jwt-abc');
     expect(localStorage.getItem('tickeasy_user')).toBeNull();
     expect(localStorage.getItem('tickeasy_token')).toBeNull();
-    expect(window.location.href).toBe('https://frontend-amber.onrender.com/login');
-    vi.useRealTimers();
+    expect(document.cookie).not.toContain('tickeasy_token=jwt-abc');
+    expect(window.location.href).toBe('https://frontend-amber.onrender.com/auth/logout-broadcast');
   });
 
-  it('iframe onerror → 仍執行本地清除與跳轉', () => {
-    document.cookie = 'tickeasy_token=jwt-abc; path=/';
-    localStorage.setItem('tickeasy_user', '{"userId":"u1"}');
-
-    const fakeIframe = makeFakeIframe();
-    vi.spyOn(document, 'createElement').mockReturnValue(fakeIframe as unknown as HTMLElement);
-    vi.spyOn(document.body, 'appendChild').mockImplementation(() => fakeIframe as unknown as Node);
-
-    clearAuthData();
-    fakeIframe.onerror!();
-
-    expect(localStorage.getItem('tickeasy_user')).toBeNull();
-    expect(window.location.href).toBe('https://frontend-amber.onrender.com/login');
-  });
-
-  it('4000ms timeout fallback → iframe 未回應時仍清除並跳轉', () => {
-    vi.useFakeTimers();
-    document.cookie = 'tickeasy_token=jwt-abc; path=/';
-    localStorage.setItem('tickeasy_user', '{"userId":"u1"}');
-
-    const fakeIframe = makeFakeIframe();
-    vi.spyOn(document, 'createElement').mockReturnValue(fakeIframe as unknown as HTMLElement);
-    vi.spyOn(document.body, 'appendChild').mockImplementation(() => fakeIframe as unknown as Node);
+  it('尊重 NEXT_PUBLIC_FRONTEND_URL 環境變數', () => {
+    vi.stubEnv('NEXT_PUBLIC_FRONTEND_URL', 'https://custom-frontend.example.com');
 
     clearAuthData();
 
-    expect(localStorage.getItem('tickeasy_user')).toBe('{"userId":"u1"}');
-
-    vi.advanceTimersByTime(4000);
-
-    expect(localStorage.getItem('tickeasy_user')).toBeNull();
-    expect(window.location.href).toBe('https://frontend-amber.onrender.com/login');
-
-    vi.useRealTimers();
+    expect(window.location.href).toBe('https://custom-frontend.example.com/auth/logout-broadcast');
+    vi.unstubAllEnvs();
   });
 });

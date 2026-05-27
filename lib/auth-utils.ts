@@ -58,54 +58,24 @@ export const hasValidToken = (): boolean => {
 };
 
 /**
- * 清除所有認證資訊並導向前端登入。
- * 先載入隱藏 iframe（前台 origin）觸發 BroadcastChannel 廣播，
- * 使同瀏覽器的前台分頁也一併登出，再執行本地清除與跳轉。
+ * 清除所有認證資訊並導向前台 logout-broadcast 頁面。
+ * 前台在第一方 context 廣播給其他前台分頁後跳轉 /login。
+ * 取代舊版 iframe 方案：跨站 iframe 受瀏覽器儲存隔離，BroadcastChannel 無法跨 partition 傳遞。
  */
 export const clearAuthData = (): void => {
   if (typeof window === 'undefined') return;
 
   const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL ?? 'https://frontend-amber.onrender.com';
-  const BROADCAST_TIMEOUT_MS = 4000;
 
-  const performLocalCleanup = (iframe: HTMLIFrameElement | null): void => {
-    localStorage.removeItem('tickeasy_token');
-    localStorage.removeItem('tickeasy_user');
-    try {
-      document.cookie = 'tickeasy_token=; path=/; max-age=0';
-    } catch (err) {
-      console.warn('無法刪除 cookie:', err);
-    }
-    if (iframe?.parentNode) {
-      iframe.parentNode.removeChild(iframe);
-    }
-    window.location.href = `${FRONTEND_URL}/login`;
-  };
+  localStorage.removeItem('tickeasy_token');
+  localStorage.removeItem('tickeasy_user');
+  try {
+    document.cookie = 'tickeasy_token=; path=/; max-age=0';
+  } catch (err) {
+    console.warn('無法刪除 cookie:', err);
+  }
 
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-
-  const cleanup = (): void => {
-    clearTimeout(timer);
-    window.removeEventListener('message', onMessage);
-    performLocalCleanup(iframe);
-  };
-
-  const timer = setTimeout(cleanup, BROADCAST_TIMEOUT_MS);
-
-  const onMessage = (event: MessageEvent): void => {
-    if (event.data?.type === 'LOGOUT_BROADCAST_DONE' && event.source === iframe.contentWindow) {
-      cleanup();
-    }
-  };
-
-  window.addEventListener('message', onMessage);
-
-  iframe.onerror = cleanup;
-
-  iframe.src = `${FRONTEND_URL}/auth/logout-broadcast`;
-  document.body.appendChild(iframe);
+  window.location.href = `${FRONTEND_URL}/auth/logout-broadcast`;
 };
 
 /**
