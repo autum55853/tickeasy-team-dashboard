@@ -11,6 +11,7 @@
 | 場地管理 | `/dashboard/venues` | 完成 |
 | 訂單管理 | `/dashboard/orders` | 完成 |
 | 跨域認證 | middleware + layout | 完成 |
+| 跨域登出同步 | Supabase Realtime | 完成 |
 
 ---
 
@@ -24,6 +25,7 @@
 2. Middleware 攔截，讀取 `?token=` 寫入 Cookie `tickeasy_token`（1 天），redirect 到乾淨 URL
 3. Dashboard layout 的 `handleCrossDomainAuth()` 再次讀取 URL params（若 middleware 未處理時的備援），寫入 localStorage
 4. 後續每次 `/dashboard` 請求，middleware 檢查 Cookie 是否存在，無則重導向前端登入
+5. Dashboard layout 掛載時訂閱 Supabase Realtime channel `tickeasy-session-{email}`（Presence），前台登出時 track `{ event: "LOGOUT" }`，Dashboard 收到 presence join 後呼叫 `clearAuthData()` 自動登出
 
 ### 錯誤情境
 
