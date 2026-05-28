@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-05-28
+
+### Changed
+- `app/(dashboard)/layout.tsx`：跨域登出同步改用 Supabase Realtime **Presence**，與前台機制對齊
+  - Channel 名稱由 `tickeasy-logout-{email}` 改為 `tickeasy-session-{email}`
+  - 事件監聽由 `broadcast/LOGOUT` 改為 `presence/join`，判斷 `newPresences[].event === "LOGOUT"`
+  - 移除 `NEXT_PUBLIC_LOGOUT_BROADCAST_SECRET` secret 比對邏輯（Presence 不需要）
+- 測試同步更新：`tests/unit/components/dashboard-layout.test.tsx`
+
+## [0.4.3] - 2026-05-28
+
+### Added
+- 跨域登出同步：前台登出時透過 Supabase Realtime Broadcast 通知 Dashboard，Dashboard 收到後自動執行 `clearAuthData()` 登出
+- `tickeasy-team-frontend/src/lib/supabase.ts`：前台 Supabase client singleton（供 Realtime Broadcast 使用）
+- 前台 `logoutBroadcastPage.tsx`：新增 Supabase Broadcast 廣播邏輯（best-effort，最多等待 2 秒）
+- Dashboard `app/(dashboard)/layout.tsx`：新增 Realtime channel 訂閱（`tickeasy-logout-{email}`）
+
+### Changed
+- 前台 `@supabase/supabase-js` 加入依賴（版本與 Dashboard 共用 Supabase 專案）
+
 ## [0.4.2] - 2026-05-26
 
 ### Fixed
