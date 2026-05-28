@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-05-28
+
+### Fixed
+- `lib/supabase/client.ts`：改為 module-level singleton，防止 React StrictMode 雙重 invoke 時每次建立新 Supabase 實例，導致 WebSocket 握手未完成即被關閉（"WebSocket is closed before the connection is established"）
+- `app/(dashboard)/layout.tsx`：移除開發用 `console.log`
+
 ## [0.4.4] - 2026-05-28
 
 ### Changed
