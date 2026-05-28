@@ -50,7 +50,7 @@ afterEach(() => {
 });
 
 describe('DashboardLayout - Realtime 登出訂閱', () => {
-  it('user 有 email 時訂閱 tickeasy-session-{email} channel', () => {
+  it('user 有 email 時訂閱 tickeasy-session-{email} broadcast channel', () => {
     mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
 
     render(<DashboardLayout>content</DashboardLayout>);
@@ -58,44 +58,22 @@ describe('DashboardLayout - Realtime 登出訂閱', () => {
     const supabase = mocks.mockCreateClient.mock.results[0].value;
     expect(supabase.channel).toHaveBeenCalledWith('tickeasy-session-admin@test.com');
     expect(mocks.mockChannel.on).toHaveBeenCalledWith(
-      'presence',
-      { event: 'join' },
+      'broadcast',
+      { event: 'LOGOUT' },
       expect.any(Function)
     );
     expect(mocks.mockChannel.subscribe).toHaveBeenCalled();
   });
 
-  it('收到 presence join 且 event=LOGOUT 時呼叫 clearAuthData()', () => {
+  it('收到 broadcast LOGOUT 時呼叫 clearAuthData()', () => {
     mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
 
     render(<DashboardLayout>content</DashboardLayout>);
 
-    const handler = mocks.mockChannel.on.mock.calls[0][2] as (msg: { newPresences: Array<Record<string, unknown>> }) => void;
-    handler({ newPresences: [{ event: 'LOGOUT', timestamp: Date.now() }] });
+    const handler = mocks.mockChannel.on.mock.calls[0][2] as () => void;
+    handler();
 
     expect(mocks.mockClearAuthData).toHaveBeenCalledOnce();
-  });
-
-  it('收到 presence join 但 event 非 LOGOUT 時不呼叫 clearAuthData()', () => {
-    mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
-
-    render(<DashboardLayout>content</DashboardLayout>);
-
-    const handler = mocks.mockChannel.on.mock.calls[0][2] as (msg: { newPresences: Array<Record<string, unknown>> }) => void;
-    handler({ newPresences: [{ event: 'OTHER', timestamp: Date.now() }] });
-
-    expect(mocks.mockClearAuthData).not.toHaveBeenCalled();
-  });
-
-  it('收到 presence join 但 newPresences 為空時不呼叫 clearAuthData()', () => {
-    mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
-
-    render(<DashboardLayout>content</DashboardLayout>);
-
-    const handler = mocks.mockChannel.on.mock.calls[0][2] as (msg: { newPresences: Array<Record<string, unknown>> }) => void;
-    handler({ newPresences: [] });
-
-    expect(mocks.mockClearAuthData).not.toHaveBeenCalled();
   });
 
   it('unmount 時呼叫 removeChannel（cleanup）', () => {

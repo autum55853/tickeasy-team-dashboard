@@ -37,11 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const channel = supabase.channel(`tickeasy-session-${user.email}`);
 
     channel
-      .on("presence", { event: "join" }, ({ newPresences }: { newPresences: Array<Record<string, unknown>> }) => {
-        if (newPresences.some((p) => p.event === "LOGOUT")) {
-          clearAuthData();
-        }
-      })
+      .on("broadcast", { event: "LOGOUT" }, () => clearAuthData())
       .subscribe();
 
     return () => {
