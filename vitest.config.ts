@@ -9,6 +9,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     env: {
       NEXT_PUBLIC_FRONTEND_URL: 'https://frontend-amber.onrender.com',
+      NEXT_PUBLIC_LOGOUT_BROADCAST_SECRET: 'test-broadcast-secret',
     },
     globals: true,
     exclude: ['node_modules', '.next', 'tests/e2e/**'],

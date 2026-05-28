@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/dashboard/navbar";
-import { handleCrossDomainAuth, hasValidToken } from "@/lib/auth-utils";
+import { handleCrossDomainAuth, hasValidToken, clearAuthData, getCurrentUser } from "@/lib/auth-utils";
+import { createClient } from "@/lib/supabase/client";
 
 // Dashboard 專屬 Layout，所有 dashboard 相關頁面都會自動套用
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     handleAuth();
   }, [router]);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (!user?.email) return;
+
+    const supabase = createClient();
+    const channel = supabase.channel(`tickeasy-logout-${user.email}`);
+
+    const expectedSecret = process.env.NEXT_PUBLIC_LOGOUT_BROADCAST_SECRET;
+    channel
+      .on("broadcast", { event: "LOGOUT" }, (msg: Record<string, unknown>) => {
+        if (expectedSecret) {
+          const p = msg?.payload as Record<string, unknown> | undefined;
+          if (p?.secret !== expectedSecret) return;
+        }
+        clearAuthData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // 顯示載入狀態，避免閃爍
   if (isLoading) {
