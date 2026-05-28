@@ -2,22 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import DashboardLayout from '@/app/(dashboard)/layout';
 
-// vi.hoisted 確保 mock 變數在 vi.mock 工廠執行前已初始化
 const mocks = vi.hoisted(() => {
   const mockClearAuthData = vi.fn();
   const mockGetCurrentUser = vi.fn();
-  const mockChannel = {
-    on: vi.fn(),
-    subscribe: vi.fn(),
-  };
-  mockChannel.on.mockReturnValue(mockChannel);
-  mockChannel.subscribe.mockReturnValue(mockChannel);
-  const mockRemoveChannel = vi.fn();
-  const mockCreateClient = vi.fn(() => ({
-    channel: vi.fn(() => mockChannel),
-    removeChannel: mockRemoveChannel,
-  }));
-  return { mockClearAuthData, mockGetCurrentUser, mockChannel, mockRemoveChannel, mockCreateClient };
+  const mockEnsureLogoutChannel = vi.fn();
+  return { mockClearAuthData, mockGetCurrentUser, mockEnsureLogoutChannel };
 });
 
 vi.mock('@/lib/auth-utils', () => ({
@@ -36,13 +25,11 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: mocks.mockCreateClient,
+  ensureLogoutChannel: mocks.mockEnsureLogoutChannel,
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.mockChannel.on.mockReturnValue(mocks.mockChannel);
-  mocks.mockChannel.subscribe.mockReturnValue(mocks.mockChannel);
 });
 
 afterEach(() => {
@@ -50,65 +37,30 @@ afterEach(() => {
 });
 
 describe('DashboardLayout - Realtime 登出訂閱', () => {
-  it('user 有 email 時訂閱 tickeasy-session-{email} broadcast channel', () => {
+  it('user 有 email 時呼叫 ensureLogoutChannel', () => {
     mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
 
     render(<DashboardLayout>content</DashboardLayout>);
 
-    const supabase = mocks.mockCreateClient.mock.results[0].value;
-    expect(supabase.channel).toHaveBeenCalledWith('tickeasy-session-admin@test.com');
-    expect(mocks.mockChannel.on).toHaveBeenCalledWith(
-      'broadcast',
-      { event: 'LOGOUT' },
-      expect.any(Function)
+    expect(mocks.mockEnsureLogoutChannel).toHaveBeenCalledWith(
+      'admin@test.com',
+      mocks.mockClearAuthData
     );
-    expect(mocks.mockChannel.subscribe).toHaveBeenCalled();
   });
 
-  it('收到 broadcast LOGOUT 時呼叫 clearAuthData()', () => {
-    mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
-
-    render(<DashboardLayout>content</DashboardLayout>);
-
-    const handler = mocks.mockChannel.on.mock.calls[0][2] as () => void;
-    handler();
-
-    expect(mocks.mockClearAuthData).toHaveBeenCalledOnce();
-  });
-
-  it('unmount 時呼叫 removeChannel（cleanup）', () => {
-    mocks.mockGetCurrentUser.mockReturnValue({ email: 'admin@test.com', id: 'user-1' });
-
-    const { unmount } = render(<DashboardLayout>content</DashboardLayout>);
-    const supabase = mocks.mockCreateClient.mock.results[0].value;
-    unmount();
-
-    expect(supabase.removeChannel).toHaveBeenCalledWith(mocks.mockChannel);
-  });
-
-  it('getCurrentUser() 回傳 null 時不訂閱', () => {
+  it('getCurrentUser() 回傳 null 時不呼叫 ensureLogoutChannel', () => {
     mocks.mockGetCurrentUser.mockReturnValue(null);
 
     render(<DashboardLayout>content</DashboardLayout>);
 
-    const calls = mocks.mockCreateClient.mock.results;
-    const anyChannelCalled = calls.some(
-      (r: { value: { channel: { mock: { calls: unknown[] } } } }) =>
-        r.value.channel.mock?.calls?.length > 0
-    );
-    expect(anyChannelCalled).toBe(false);
+    expect(mocks.mockEnsureLogoutChannel).not.toHaveBeenCalled();
   });
 
-  it('getCurrentUser() 回傳無 email 時不訂閱', () => {
+  it('getCurrentUser() 回傳無 email 時不呼叫 ensureLogoutChannel', () => {
     mocks.mockGetCurrentUser.mockReturnValue({ id: 'user-1' });
 
     render(<DashboardLayout>content</DashboardLayout>);
 
-    const calls = mocks.mockCreateClient.mock.results;
-    const anyChannelCalled = calls.some(
-      (r: { value: { channel: { mock: { calls: unknown[] } } } }) =>
-        r.value.channel.mock?.calls?.length > 0
-    );
-    expect(anyChannelCalled).toBe(false);
+    expect(mocks.mockEnsureLogoutChannel).not.toHaveBeenCalled();
   });
 });

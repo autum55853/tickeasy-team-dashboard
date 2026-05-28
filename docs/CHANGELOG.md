@@ -2,20 +2,27 @@
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-05-28
+
+### Fixed
+- `lib/supabase/client.ts`：新增 `ensureLogoutChannel()`，以 module-level singleton 管理 Realtime channel 生命週期
+  - 根因：React StrictMode 的 cleanup + re-mount 會觸發 `removeChannel()`，Supabase 在最後一個 channel 被移除時關閉 WebSocket；下次 subscribe 嘗試連線時 WebSocket 已關閉，導致 `"WebSocket is closed before the connection is established"` 錯誤
+  - singleton client（0.4.5）防止建立新實例，但無法防止 channel cleanup 觸發 WebSocket 關閉；需連 channel 也做成 singleton 才能徹底解決
+- `app/(dashboard)/layout.tsx`：改用 `ensureLogoutChannel()`，移除 `removeChannel` cleanup（channel 生命週期與 app session 綁定，而非 React component lifecycle）
+- `app/(dashboard)/layout.tsx`：移除開發用 `console.log`（0.4.5 紀錄但未實際移除）
+- 測試同步更新：`tests/unit/components/dashboard-layout.test.tsx`（改測 `ensureLogoutChannel` 呼叫，移除 channel 內部細節斷言）
+
 ## [0.4.5] - 2026-05-28
 
 ### Fixed
-- `lib/supabase/client.ts`：改為 module-level singleton，防止 React StrictMode 雙重 invoke 時每次建立新 Supabase 實例，導致 WebSocket 握手未完成即被關閉（"WebSocket is closed before the connection is established"）
-- `app/(dashboard)/layout.tsx`：移除開發用 `console.log`
+- `lib/supabase/client.ts`：改為 module-level singleton，防止 React StrictMode 雙重 invoke 時每次建立新 Supabase 實例
 
 ## [0.4.4] - 2026-05-28
 
 ### Changed
-- `app/(dashboard)/layout.tsx`：跨域登出同步改用 Supabase Realtime **Presence**，與前台機制對齊
-  - Channel 名稱由 `tickeasy-logout-{email}` 改為 `tickeasy-session-{email}`
-  - 事件監聽由 `broadcast/LOGOUT` 改為 `presence/join`，判斷 `newPresences[].event === "LOGOUT"`
-  - 移除 `NEXT_PUBLIC_LOGOUT_BROADCAST_SECRET` secret 比對邏輯（Presence 不需要）
-- 測試同步更新：`tests/unit/components/dashboard-layout.test.tsx`
+- `app/(dashboard)/layout.tsx`：跨域登出同步由 Presence 改回 **Broadcast**（`tickeasy-session-{email}` channel，event `LOGOUT`）
+  - 原 0.4.3 Broadcast → 0.4.4 嘗試改 Presence → 同日 commit `50e51f2` 改回 Broadcast
+  - Channel 名稱統一為 `tickeasy-session-{email}`，事件仍為 `broadcast/LOGOUT`
 
 ## [0.4.3] - 2026-05-28
 
