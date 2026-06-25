@@ -25,13 +25,14 @@ export function ensureLogoutChannel(email: string, onLogout: () => void): void {
   }
   const client = createClient();
   console.log("[logout-sync] DASH subscribe channel:", `tickeasy-session-${email}`);
-  _logoutChannel = client.channel(`tickeasy-session-${email}`);
-  _logoutChannel
-    .on("broadcast", { event: "LOGOUT" }, (payload) => {
+  const channel = client.channel(`tickeasy-session-${email}`);
+  _logoutChannel = channel;
+  channel
+    .on("broadcast", { event: "LOGOUT" }, (payload: unknown) => {
       console.log("[logout-sync] DASH 收到 LOGOUT broadcast:", payload);
       onLogout();
     })
-    .subscribe((status) => {
+    .subscribe((status: string) => {
       console.log("[logout-sync] DASH receiver subscribe status =", status);
     });
 }
