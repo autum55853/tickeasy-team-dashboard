@@ -30,7 +30,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const user = getCurrentUser();
-    if (!user?.email) return;
+    console.log("[logout-sync] DASH layout mount, getCurrentUser().email =", user?.email);
+    if (!user?.email) {
+      console.warn("[logout-sync] DASH email 缺失 → 不訂閱 channel（receiver 未建立）");
+      return;
+    }
     ensureLogoutChannel(user.email, clearAuthData);
   }, []);
 

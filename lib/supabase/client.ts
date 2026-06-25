@@ -19,8 +19,19 @@ export function createClient() {
 let _logoutChannel: RealtimeChannel | undefined;
 
 export function ensureLogoutChannel(email: string, onLogout: () => void): void {
-  if (_logoutChannel) return;
+  if (_logoutChannel) {
+    console.log("[logout-sync] DASH ensureLogoutChannel skip（singleton 已存在）, email =", email);
+    return;
+  }
   const client = createClient();
+  console.log("[logout-sync] DASH subscribe channel:", `tickeasy-session-${email}`);
   _logoutChannel = client.channel(`tickeasy-session-${email}`);
-  _logoutChannel.on("broadcast", { event: "LOGOUT" }, onLogout).subscribe();
+  _logoutChannel
+    .on("broadcast", { event: "LOGOUT" }, (payload) => {
+      console.log("[logout-sync] DASH 收到 LOGOUT broadcast:", payload);
+      onLogout();
+    })
+    .subscribe((status) => {
+      console.log("[logout-sync] DASH receiver subscribe status =", status);
+    });
 }
