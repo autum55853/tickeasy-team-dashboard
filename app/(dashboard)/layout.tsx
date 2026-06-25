@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/dashboard/navbar";
 import { handleCrossDomainAuth, clearAuthData, getCurrentUser } from "@/lib/auth-utils";
-import { createClient } from "@/lib/supabase/client";
+import { ensureLogoutChannel } from "@/lib/supabase/client";
 
 // Dashboard 專屬 Layout，所有 dashboard 相關頁面都會自動套用
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -15,9 +15,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const handleAuth = () => {
       // 先檢查是否有跨域認證參數
       const hasExternalAuth = handleCrossDomainAuth();
-      
+
       if (hasExternalAuth) {
-        console.log('成功接收跨域認證，已設置 token');
         setIsLoading(false);
         return;
       }
@@ -31,18 +30,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const user = getCurrentUser();
-    if (!user?.email) return;
-
-    const supabase = createClient();
-    const channel = supabase.channel(`tickeasy-session-${user.email}`);
-
-    channel
-      .on("broadcast", { event: "LOGOUT" }, () => clearAuthData())
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    console.log("[logout-sync] DASH layout mount, getCurrentUser().email =", user?.email);
+    if (!user?.email) {
+      console.warn("[logout-sync] DASH email 缺失 → 不訂閱 channel（receiver 未建立）");
+      return;
+    }
+    ensureLogoutChannel(user.email, clearAuthData);
   }, []);
 
   // 顯示載入狀態，避免閃爍
@@ -59,9 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* 上方導覽列 */}
       <Navbar />
       {/* 主要內容區域 */}
-      <main className="flex-1 container mx-auto py-8">
-        {children}
-      </main>
+      <main className="flex-1 container mx-auto py-8">{children}</main>
     </div>
   );
-} 
+}
