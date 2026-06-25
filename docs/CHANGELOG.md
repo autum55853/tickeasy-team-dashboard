@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+- 移除跨域登出同步的 `[logout-sync]` 診斷 `console.log`（`lib/supabase/client.ts`、`app/(dashboard)/layout.tsx`）；前台→Dashboard 方向（Direction B）實機驗證通過後收尾，功能邏輯不變
+
 ## [0.4.6] - 2026-05-28
 
 ### Fixed
