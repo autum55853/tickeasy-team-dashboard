@@ -6,7 +6,7 @@ Tickeasy 演唱會票務系統後台管理介面，供管理員執行用戶管�
 
 | 類別 | 技術 |
 |------|------|
-| 框架 | Next.js 14.2.1（App Router + Turbopack） |
+| 框架 | Next.js 14.2.35（App Router + Turbopack） |
 | 語言 | TypeScript 5 |
 | UI | Tailwind CSS 3 + shadcn/ui（Radix UI） |
 | 資料庫 | Supabase（@supabase/ssr + supabase-js） |

@@ -8,9 +8,9 @@
 
 | # | 項目 | 類別 | 嚴重度 | 狀態 |
 |---|------|------|--------|------|
-| 1 | 升級 Next.js ≥ 14.2.25（CVE-2025-29927 middleware 認證繞過） | 安全 | 🔴 最高 | 待處理 |
-| 2 | 依賴版本鎖定（移除 `"latest"`） | 安全 | 🔴 高 | 待處理 |
-| 3 | React 與 @types/react 版本對齊 | 維護 | 🟡 中 | 待處理 |
+| 1 | 升級 Next.js ≥ 14.2.25（CVE-2025-29927 middleware 認證繞過） | 安全 | 🔴 最高 | ✅ 完成 |
+| 2 | 依賴版本鎖定（移除 `"latest"`） | 安全 | 🔴 高 | ✅ 完成 |
+| 3 | React 與 @types/react 版本對齊 | 維護 | 🟡 中 | ✅ 完成 |
 | 4 | ESLint 8 → 9（與其他 repo 對齊） | 維護 | 🟢 低 | 待處理 |
 
 ---
@@ -55,3 +55,7 @@
 1（Next 升級，最急）→ 2（鎖版本，與 1 同一個 commit 亦可）→ 3 → 4（選配）
 
 每項完成即跑 `npm run lint` + `npm run test`，全綠才進下一項。
+
+## 遺留追蹤
+
+項目 3 為避開 radix 全樹 peer-dep cascade，使用 `--before` 鎖定重解析時間點，副作用是 `@radix-ui/*` 子樹凍結在 2026-06-05 解析狀態，需另排 `npm update` pass 處理；詳見 `docs/CHANGELOG.md` [Unreleased] 段落。
