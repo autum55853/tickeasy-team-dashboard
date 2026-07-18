@@ -11,7 +11,7 @@
 | 1 | 升級 Next.js ≥ 14.2.25（CVE-2025-29927 middleware 認證繞過） | 安全 | 🔴 最高 | ✅ 完成 |
 | 2 | 依賴版本鎖定（移除 `"latest"`） | 安全 | 🔴 高 | ✅ 完成 |
 | 3 | React 與 @types/react 版本對齊 | 維護 | 🟡 中 | ✅ 完成 |
-| 4 | ESLint 8 → 9（與其他 repo 對齊） | 維護 | 🟢 低 | 待處理 |
+| 4 | ESLint 8 → 9（與其他 repo 對齊） | 維護 | 🟢 低 | ⛔ 評估後不可行（2026-07-18，見下方結論），併入未來 Next 15 升級 |
 
 ---
 
@@ -42,6 +42,10 @@
 - **問題**：dashboard 用 eslint 8 + `eslint-config-next`，backend / frontend 皆 eslint 9，三 repo 兩套 config 心智。
 - **做法**：隨 Next 升級順帶評估；若 `eslint-config-next` 對 flat config 支援仍麻煩，可延後，不阻塞其他項目。
 - **驗收**：`npm run lint` 過，規則行為無明顯回歸。
+- **評估結論（2026-07-18）：現階段不可行，併入未來 Next 15 升級一併處理。**
+  - `eslint-config-next@14.2.35` 的 peerDependencies 為 `eslint: "^7.23.0 || ^8.0.0"`，整條 14.2.x 線皆同——ESLint 9 支援始於 `eslint-config-next@15.0.0`，是綁 Next major 的硬性版本閘，等不到 14.2.x 補丁。
+  - 其餘 plugins（react-hooks、@typescript-eslint 8、import）本身皆已支援 ESLint 9，唯一阻擋點就是 eslint-config-next。
+  - 屆時遷移清單：next + eslint-config-next 同升 15.x → eslint ^9 → `.eslintrc.json` 遷移 flat config（`eslint.config.mjs`）→ 若上到 Next 16 需注意 `next lint` 已移除（改用 ESLint CLI，官方有 codemod）→ 重驗現有 3 個 warnings 在 flat config 下行為一致。
 
 ---
 
