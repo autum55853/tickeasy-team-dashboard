@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Security / Changed
+- 升級 `next` 14.2.1 → 14.2.35（同 14.2 系列 patch），修補 CVE-2025-29927（`x-middleware-subrequest` header 可繞過 `middleware.ts` 路由保護）；`eslint-config-next` 同步升版（commit `f8c075c`）
+- `@supabase/ssr`、`@supabase/supabase-js` 由 `"latest"` 改為固定 `^` 版本範圍（`^0.6.1`、`^2.50.0`），避免每次 install 抓到未知新版本、build 不可重現（commit `f8c075c`）
+
+### Changed
+- `@types/react` 降至 `^18.3.31`、`@types/react-dom` 降至 `^18.3.7`，對齊實際安裝的 `react@18.2.0`（原型別為 `^19`，跨大版導致型別與實際 API 不符）（commit `69672b1`）
+  - **已知代價（更新債）**：因 `@types` peer dep 變更觸發 lockfile 重解析，為避開 radix 全樹 cascade（估計 +6047 行 lockfile churn），改用 `npm install --before=2026-06-05T22:00Z` 限制重解析範圍。副作用是整個 `@radix-ui/*` 子樹被凍結在 2026-06-05 當時的 in-range 最新解析狀態（例如 `@radix-ui/react-avatar` 鎖在 `1.1.11`，同日期之後的 in-range 最新已到 `1.2.2`）
+  - `npm audit` 目前乾淨、`npm ci` 可重現，非緊急風險，但**下次執行 `npm update` 或調整任何 `@radix-ui/*` 版本範圍時，會重新觸發被延後的 cascade**，需獨立排一個 pass 處理（升級 + 驗證 peer dep + 檢視 lockfile diff），不可預期它會「順手」發生
+
+### Removed
+- 移除跨域登出同步的 `[logout-sync]` 診斷 `console.log`（`lib/supabase/client.ts`、`app/(dashboard)/layout.tsx`）；前台→Dashboard 方向（Direction B）實機驗證通過後收尾，功能邏輯不變
+
 ## [0.4.6] - 2026-05-28
 
 ### Fixed
